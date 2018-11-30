@@ -9,10 +9,13 @@ typedef enum {
 
 typedef struct {
 	char* id;
+	int id_length;
 	char* name;
+	int name_length;
 	SEX sex;
 	unsigned short age;
 	char* _class;
+	int _class_length;
 } student;
 
 #endif

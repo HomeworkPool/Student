@@ -7,11 +7,19 @@
 
 int main(int argc, char* argv[]) {
 	FILE* db = db_init("./student.dat");
+	FILE* index = db_init("./student.index");
 	if(errno) {
 		printf("Fatal error: unable to initialize database file ./student.dat. error code #%d", errno);
 		return 1;
 	}
-
-	print_insert();
+	
+	student gg[] = {print_insert()};
+	db_write(db, index, gg, 1);
+	
+	unsigned num = 0;
+	student* stu = db_read(db, index, &num);
+	printf("%s", stu[0].name);
+	fclose(db);
+	fclose(index);
 	return 0;
 }

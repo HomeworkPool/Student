@@ -38,14 +38,14 @@ inline student print_insert() {
 	stu.id = malloc(31);
 	stu.name = malloc(101);
 	stu._class = malloc(31);
-	get_line_info("ID", &stu.id, 30);
-	get_line_info("Name", &stu.name, 100);
+	stu.id_length = get_line_info("ID", &stu.id, 30);
+	stu.name_length = get_line_info("Name", &stu.name, 100);
+	stu._class_length = get_line_info("Class", &stu._class, 100);
 	stu.age = 0;
 	printf("Age: ");
-	scanf_s("%d", &stu.age);
+	scanf_s("%hu", &stu.age);
 	printf("Sex: ");
 	stu.sex = give_opinions(2, sexes);
-	get_line_info("Class", &stu._class, 100);
 	return stu;
 }
 
