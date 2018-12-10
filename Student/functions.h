@@ -52,17 +52,28 @@ inline FILE* db_init(const char* path) {
 	return stream;
 }
 
-inline void db_write(FILE* file, FILE* index, student data[], unsigned num) {
+inline void db_write(FILE* file, FILE* index, student* data, unsigned num) {
 	fseek(file, 0L, SEEK_SET);
 	fseek(index, 0L, SEEK_SET);
 	fwrite(data, sizeof(student), num, file);
+	/*if (data[num - 1].next != NULL) {
+		for (student* poi = data[num - 1].next; poi != NULL;) {
+			fwrite(data, sizeof(student), num, file);
+		}
+	}*/
 	fprintf_s(index, "%d\n", num);
 	for (unsigned i = 0; i < num; i++) {
-		fwrite(data[i].name, data[i].name_length, 1, index);
 		fwrite(data[i].id, data[i].id_length, 1, index);
+		fwrite(data[i].name, data[i].name_length, 1, index);
 		fwrite(data[i]._class, data[i]._class_length, 1, index);
+		while (data[i].next != NULL) {
+			fwrite(data[i].id, data[i].id_length, 1, index);
+			fwrite(data[i].name, data[i].name_length, 1, index);
+			fwrite(data[i]._class, data[i]._class_length, 1, index);
+		}
 	}
 	fflush(file);
+	fflush(index);
 }
 
 inline student* db_read(FILE* file, FILE* index, unsigned* _num) {
@@ -73,20 +84,63 @@ inline student* db_read(FILE* file, FILE* index, unsigned* _num) {
 	fread_s(buffer, size, size, 1, file);
 	const unsigned num = 0;
 	fseek(index, 0L, SEEK_SET);
-	fscanf_s(index, "%d", &num);
+	fscanf_s(index, "%u\n", &num);
 	for (unsigned i = 0; i < num; i++) {
-		buffer[i].name = calloc(buffer[i].name_length + 1, sizeof(char));
-		buffer[i].id = calloc(buffer[i].id_length + 1, sizeof(char));
-		buffer[i]._class = calloc(buffer[i]._class_length + 1, sizeof(char));
-		fread_s(buffer[i].name, buffer[i].name_length, buffer[i].name_length, 1, index);
-		fread_s(buffer[i].id, buffer[i].id_length, buffer[i].id_length, 1, index);
-		fread_s(buffer[i]._class, buffer[i]._class_length, buffer[i]._class_length, 1, index);
+		buffer[i].name = calloc(buffer[i].name_length + 2, sizeof(char));
+		buffer[i].id = calloc(buffer[i].id_length + 2, sizeof(char));
+		buffer[i]._class = calloc(buffer[i]._class_length + 2, sizeof(char));
+		fread_s(buffer[i].id, buffer[i].id_length + 1, buffer[i].id_length, 1, index);
+		fread_s(buffer[i].name, buffer[i].name_length + 1, buffer[i].name_length, 1, index);
+		fread_s(buffer[i]._class, buffer[i]._class_length + 1, buffer[i]._class_length, 1, index);
 		buffer[i].name[buffer[i].name_length + 1] = '\0';
 		buffer[i].id[buffer[i].id_length + 1] = '\0';
 		buffer[i]._class[buffer[i]._class_length + 1] = '\0';
+		buffer[i].next = NULL;
 	}
 	*_num = num;
 	return buffer;
+}
+
+inline char* get_sex(unsigned short in) {
+	return in == 1 ? "Female" : "Male";
+}
+
+inline bool stu_insert(student** source, unsigned* num, student data) {
+	student* new_ptr = realloc(*source, sizeof(*source) + sizeof(student) * sizeof(data));
+	if(new_ptr != NULL) {
+		*source = new_ptr;
+		(*source)[*num].name = data.name;
+		(*source)[*num].age = data.age;
+		(*source)[*num].id = data.id;
+		(*source)[*num].id_length = data.id_length;
+		(*source)[*num].name_length = data.name_length;
+		(*source)[*num].sex = data.sex;
+		(*source)[*num]._class = data._class;
+		(*source)[*num]._class_length = data._class_length;
+		(*num)++;
+		return true;
+	} else {
+		return false;
+	}
+	(*num)++;
+	return true;
+}
+
+inline bool stu_delete(student** source, unsigned* num, unsigned key) {
+	*source = realloc(*source, sizeof(*source) - sizeof(student));
+	if (*source) {
+		unsigned x = 0;
+		for (unsigned i = 0; i < *num; i++) {
+			if (i != key) {
+				(*source)[x] = (*source)[i];
+				x++;
+			}
+		}
+		(*num)--;
+		return true;
+	} else {
+		return false;
+	}
 }
 
 #endif

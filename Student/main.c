@@ -12,13 +12,13 @@ int main(int argc, char* argv[]) {
 		printf("Fatal error: unable to initialize database file ./student.dat. error code #%d", errno);
 		return 1;
 	}
-	
-	student gg[] = {print_insert()};
-	db_write(db, index, gg, 1);
-	
+	//student gg[] = {print_insert()};
+	//db_write(db, index, gg, 1);
 	unsigned num = 0;
 	student* stu = db_read(db, index, &num);
-	printf("%s", stu[0].name);
+	while (true) {
+		stu = print_index(stu, num, db, index);
+	}
 	fclose(db);
 	fclose(index);
 	return 0;
