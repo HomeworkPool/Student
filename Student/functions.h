@@ -10,10 +10,21 @@
 #include <string.h>
 #define F_OK 0
 
-inline int get_int() {
+inline void empty_buffer() {
 	setvbuf(stdin, NULL, _IOFBF, 16384);
+}
+
+inline int get_int() {
+	empty_buffer();
 	int temp;
 	scanf_s("%d", &temp);
+	return temp;
+}
+
+inline unsigned get_unsigned() {
+	empty_buffer();
+	unsigned temp;
+	scanf_s("%u", &temp);
 	return temp;
 }
 
@@ -24,7 +35,7 @@ inline int get_int() {
  * @return length of string
  */
 inline int get_line(char** target, unsigned max) {
-	setvbuf(stdin, NULL, _IOFBF, 16384);
+	empty_buffer();
 	char* buffer = (char*)calloc(max + 2, sizeof(char));
 	char input = getchar();
 	unsigned i;
@@ -149,6 +160,10 @@ inline bool stu_delete(student** source, unsigned* num, unsigned key) {
 		(*source)[i]._class_length = (*source)[i + 1]._class_length;
 	}
 	(*num)--;
+}
+
+inline void bubble_sort_str(student* source) {
+	
 }
 
 #endif
