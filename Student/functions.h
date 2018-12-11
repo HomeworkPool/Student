@@ -10,6 +10,13 @@
 #include <string.h>
 #define F_OK 0
 
+inline int get_int() {
+	setvbuf(stdin, NULL, _IOFBF, 16384);
+	int temp;
+	scanf_s("%d", &temp);
+	return temp;
+}
+
 /**
  * Read a line from console
  * @param target target to write result
@@ -17,15 +24,30 @@
  * @return length of string
  */
 inline int get_line(char** target, unsigned max) {
+	setvbuf(stdin, NULL, _IOFBF, 16384);
 	char* buffer = (char*)calloc(max + 2, sizeof(char));
-	char input;
-	unsigned i = 0;
+	char input = getchar();
+	unsigned i;
+	if(input == '\n') {
+		i = 0;
+	} else {
+		i = 1;
+		buffer[0] = input;
+	}
 	for (; (input = getchar()) != '\n' && i < max; i++)
 		buffer[i] = input;
 	buffer[i+1] = '\0';
 	strcpy_s(*target, i+1, buffer);
 	free(buffer);
 	return i+1;
+}
+
+inline char* cat(char* a, char* b) {
+	const unsigned buffer_size = sizeof(char) * (strlen(a) * strlen(b) + 2);
+	char* buffer = malloc(buffer_size);
+	strcpy_s(buffer, buffer_size, a);
+	strcat_s(buffer, buffer_size, b);
+	return buffer;
 }
 
 inline int get_line_info(const char* info, char** target, unsigned max) {
@@ -56,21 +78,11 @@ inline void db_write(FILE* file, FILE* index, student* data, unsigned num) {
 	fseek(file, 0L, SEEK_SET);
 	fseek(index, 0L, SEEK_SET);
 	fwrite(data, sizeof(student), num, file);
-	/*if (data[num - 1].next != NULL) {
-		for (student* poi = data[num - 1].next; poi != NULL;) {
-			fwrite(data, sizeof(student), num, file);
-		}
-	}*/
 	fprintf_s(index, "%d\n", num);
 	for (unsigned i = 0; i < num; i++) {
 		fwrite(data[i].id, data[i].id_length, 1, index);
 		fwrite(data[i].name, data[i].name_length, 1, index);
 		fwrite(data[i]._class, data[i]._class_length, 1, index);
-		while (data[i].next != NULL) {
-			fwrite(data[i].id, data[i].id_length, 1, index);
-			fwrite(data[i].name, data[i].name_length, 1, index);
-			fwrite(data[i]._class, data[i]._class_length, 1, index);
-		}
 	}
 	fflush(file);
 	fflush(index);
@@ -95,7 +107,6 @@ inline student* db_read(FILE* file, FILE* index, unsigned* _num) {
 		buffer[i].name[buffer[i].name_length + 1] = '\0';
 		buffer[i].id[buffer[i].id_length + 1] = '\0';
 		buffer[i]._class[buffer[i]._class_length + 1] = '\0';
-		buffer[i].next = NULL;
 	}
 	*_num = num;
 	return buffer;
@@ -127,20 +138,17 @@ inline bool stu_insert(student** source, unsigned* num, student data) {
 }
 
 inline bool stu_delete(student** source, unsigned* num, unsigned key) {
-	*source = realloc(*source, sizeof(*source) - sizeof(student));
-	if (*source) {
-		unsigned x = 0;
-		for (unsigned i = 0; i < *num; i++) {
-			if (i != key) {
-				(*source)[x] = (*source)[i];
-				x++;
-			}
-		}
-		(*num)--;
-		return true;
-	} else {
-		return false;
+	for (unsigned i = key; i < *num - 1; i++) {
+		(*source)[i].name = (*source)[i + 1].name;
+		(*source)[i].age = (*source)[i + 1].age;
+		(*source)[i].id = (*source)[i + 1].id;
+		(*source)[i].id_length = (*source)[i + 1].id_length;
+		(*source)[i].name_length = (*source)[i + 1].name_length;
+		(*source)[i].sex = (*source)[i + 1].sex;
+		(*source)[i]._class = (*source)[i + 1]._class;
+		(*source)[i]._class_length = (*source)[i + 1]._class_length;
 	}
+	(*num)--;
 }
 
 #endif

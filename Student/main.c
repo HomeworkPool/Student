@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 	unsigned num = 0;
 	student* stu = db_read(db, index, &num);
 	while (true) {
-		stu = print_index(stu, num, db, index);
+		print_index(&stu, &num, db, index);
 	}
 	fclose(db);
 	fclose(index);

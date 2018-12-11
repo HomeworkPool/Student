@@ -17,7 +17,6 @@ typedef struct __student {
 	unsigned short age;
 	char* _class;
 	int _class_length;
-	struct __student* next;
 } student;
 
 #endif
