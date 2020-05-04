@@ -10,10 +10,10 @@ bool _exit_flag = false;
 
 void signal_int_handler(int sig) {
     _exit_flag = true;
-}
+} 
 
 int main(int argc, char* argv[]) {
-	signal(SIGINT, signal_int_handler); 
+	//signal(SIGINT, signal_int_handler); 
 	FILE* db = db_init("./student.dat");
 	FILE* index = db_init("./student.index");
 	if(errno) {

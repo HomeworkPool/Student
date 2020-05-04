@@ -9,6 +9,7 @@ typedef enum {
 } SEX;
 
 typedef struct __student {
+	int order;
 	char* id;
 	int id_length;
 	char* name;
